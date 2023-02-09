@@ -116,7 +116,7 @@ namespace AppUser.Controllers
         #endregion
 
 
-        #region all users
+        #region all users api
         /// <summary>
         /// Get all users
         /// </summary>
@@ -132,6 +132,37 @@ namespace AppUser.Controllers
                 Log.Information("GetAllUsers");
                 var data = await _userService.Get();
                 if (data != null)
+                {
+                    return Ok(data);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
+
+        #region all users with pagination api
+        /// <summary>
+        /// Get all users with pagination
+        /// </summary>
+        /// <param name="userPerPage"></param>
+        /// <param name="pageNo"></param>
+        /// <returns></returns>
+        [HttpGet("pagination/{pageNo}")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(List<UserDTO>))]
+        [SwaggerResponse(statusCode: StatusCodes.Status204NoContent)]
+        [Authorize]
+        public async Task<IActionResult> GetAllUsersWithPagination(/*[FromBody]*/[FromQuery] int userPerPage, [FromRoute] int pageNo)
+        {
+            try
+            {
+                Log.Information("GetAllUsers");
+                var data = await _userService.GetAllPagination(userPerPage, pageNo);
+                if (data.Count != 0)
                 {
                     return Ok(data);
                 }

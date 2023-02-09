@@ -14,6 +14,7 @@ namespace BLL.Services
     {
         public Task<UserDTO?> AddUser(UserDTO obj);
         public Task<List<UserDTO>?> Get();
+        public Task<List<UserDTO>?> GetAllPagination(int userPerPage, int pageNo);
         public Task<UserDTO?> Get(int id);
         public Task<UserDTO?> Edit(UserDTO obj);
         public Task<bool> Delete(int id);

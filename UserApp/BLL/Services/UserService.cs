@@ -2,6 +2,7 @@
 using BLL.DTO;
 using DAL;
 using DAL.EF;
+using Newtonsoft.Json.Linq;
 
 namespace BLL.Services
 {
@@ -26,6 +27,32 @@ namespace BLL.Services
                 c.CreateMap<User, UserDTO>();
             });
             var mapper = new Mapper(cfg);
+            return mapper.Map<List<UserDTO>>(data);
+        }
+        public async Task<List<UserDTO>?> GetAllPagination(int userPerPage, int pageNo)
+        {
+            /*var data = await DataAccessFactory.UserDataAccess().Get();
+            var cfg = new MapperConfiguration(c =>
+            {
+                c.CreateMap<User, UserDTO>();
+            });
+            var mapper = new Mapper(cfg);
+            int userPerPage = 2;
+            int pageNo = 2;
+            int indexOfLastUser = 2;
+            int indexOfFirstUser = 2;
+            //List<User> subData = data.GetRange(indexOfFirstUser, indexOfLastUser);
+            List<User> subData = data.Skip(userPerPage*(pageNo-1)).Take(userPerPage).ToList();
+            return mapper.Map<List<UserDTO>>(subData);*/
+
+            var data = await DataAccessFactory.UserDataAccess().GetByPagination(userPerPage, pageNo);
+            var cfg = new MapperConfiguration(c =>
+            {
+                c.CreateMap<User, UserDTO>();
+            });
+            var mapper = new Mapper(cfg);
+
+
             return mapper.Map<List<UserDTO>>(data);
         }
         public async Task<UserDTO?> Get(int id)

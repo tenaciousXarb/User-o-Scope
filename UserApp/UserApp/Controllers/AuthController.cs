@@ -21,7 +21,7 @@ namespace AppCoreAPI.Controllers
         #endregion
 
 
-        #region authenticate admin
+        #region authenticate user
         /// <summary>
         /// Authenticate user
         /// </summary>

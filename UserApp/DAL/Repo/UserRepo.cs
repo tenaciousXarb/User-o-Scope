@@ -41,6 +41,14 @@ namespace DAL.Repo
             return await db.Users.FindAsync(id);
         }
 
+        public async Task<List<User>?> GetByPagination(int userPerPage, int pageNumber)
+        {
+            return await db.Users
+                .Skip(userPerPage * (pageNumber - 1))
+                .Take(userPerPage)
+                .ToListAsync();
+        }
+
         public async Task<User?> Update(User obj)
         {
             var dbpost = Get(obj.Id);

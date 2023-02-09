@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAL.EF;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,5 +14,6 @@ namespace DAL.Interfaces
         Task<List<CLASS>?> Get();
         Task<CLASS?> Get(ID id);
         Task<bool> Delete(ID id);
+        Task<List<CLASS>?> GetByPagination(int userPerPage, int pageNumber);
     }
 }
