@@ -8,7 +8,6 @@ namespace BLL.Services
 {
     public class UserService : IUserService
     {
-        public async Task<UserDTO?> AddUser(UserDTO obj)
         private readonly IMapper _mapper;
 
         public UserService(IMapper mapper)
@@ -17,19 +16,28 @@ namespace BLL.Services
         }
 
 
+        public async Task<UserDTO?> AddUser(UserCreationDTO obj)
         {
             var data = _mapper.Map<User>(obj);
             var rt = await DataAccessFactory.UserDataAccess().Add(data);
-            return mapper.Map<UserDTO>(rt);
+            if(rt != null)
+            {
                 return _mapper.Map<UserDTO>(rt);
+            }
+            throw new NullReferenceException("Unable to add user");
         }
+
+
         public async Task<List<UserDTO>?> Get()
         {
             var data = await DataAccessFactory.UserDataAccess().Get();
             return _mapper.Map<List<UserDTO>>(data);
         }
-        public async Task<List<UserDTO>?> GetAllPagination(int userPerPage, int pageNo)
+
+
+        public async Task<List<UserDTO>?> GetAllPagination(int userPerPage, int pageNo = 1)
         {
+            #region pagination in service
             /*var data = await DataAccessFactory.UserDataAccess().Get();
 
                 int userPerPage = 2;
@@ -51,11 +59,20 @@ namespace BLL.Services
             var data = await DataAccessFactory.UserDataAccess().Get(id);
             return _mapper.Map<UserDTO>(data);
         }
-        public async Task<UserDTO?> Edit(UserDTO obj)
+
+
+        public async Task<UserDTO?> Edit(int id, UserCreationDTO obj)
         {
             var data = _mapper.Map<User>(obj);
+            var rt = await DataAccessFactory.UserDataAccess().Update(id, data);
+            if (rt != null)
+            {
                 return _mapper.Map<UserDTO>(rt);
+            }
+            throw new NullReferenceException("Values not updated");
         }
+
+
         public async Task<bool> Delete(int id)
         {
             return await DataAccessFactory.UserDataAccess().Delete(id);

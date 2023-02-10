@@ -12,11 +12,11 @@ namespace BLL.Services
 {
     public interface IUserService
     {
-        public Task<UserDTO?> AddUser(UserDTO obj);
+        public Task<UserDTO?> AddUser(UserCreationDTO obj);
         public Task<List<UserDTO>?> Get();
         public Task<List<UserDTO>?> GetAllPagination(int userPerPage, int pageNo);
         public Task<UserDTO?> Get(int id);
-        public Task<UserDTO?> Edit(UserDTO obj);
+        public Task<UserDTO?> Edit(int id, UserCreationDTO obj);
         public Task<bool> Delete(int id);
     }
 }

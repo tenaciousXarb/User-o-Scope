@@ -1,4 +1,5 @@
 ﻿using BLL.Services;
+using DAL;
 using System.ComponentModel.DataAnnotations;
 
 namespace BLL.CustomValidator
@@ -10,7 +11,7 @@ namespace BLL.CustomValidator
             if (value != null)
             {
                 string? email = value.ToString();
-                var users = Task.Run(() => new UserService().Get()).Result;
+                var users = Task.Run(() => DataAccessFactory.UserDataAccess().Get()).Result;
                 if (users != null)
                 {
                     if (users.Any(x => x.Email.ToLower() == email.ToLower()))

@@ -27,8 +27,9 @@ namespace DAL.Repo
             if (obj != null)
             {
                 db.Users.Remove(obj);
+                return await db.SaveChangesAsync()>0;
             }
-            return await db.SaveChangesAsync() > 0;
+            throw new KeyNotFoundException("User not found");
         }
 
         public async Task<List<User>?> Get()
@@ -49,12 +50,20 @@ namespace DAL.Repo
                 .ToListAsync();
         }
 
-        public async Task<User?> Update(User obj)
+        public async Task<User?> Update(int id, User obj)
         {
-            var dbpost = Get(obj.Id);
-            db.Entry(dbpost).CurrentValues.SetValues(obj);
-            await db.SaveChangesAsync();
-            return obj;
+            var dbpost = db.Users.Find(id);
+            if(dbpost != null)
+            {
+                //db.Entry(dbpost).CurrentValues.SetValues(obj);
+                dbpost.Name = obj.Name;
+                dbpost.Password = obj.Password;
+                dbpost.Email = obj.Email;
+                dbpost.Address = obj.Address;
+                await db.SaveChangesAsync();
+                return dbpost;
+            }
+            throw new KeyNotFoundException("User not found");
         }
 
         public async Task<User?> Authenticate(string email, string pass)

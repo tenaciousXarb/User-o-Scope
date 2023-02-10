@@ -31,11 +31,11 @@ namespace AppUser.Controllers
         /// <param name="obj"></param>
         /// <returns></returns>
         [HttpPost("create")]
-        [SwaggerResponse(statusCode: StatusCodes.Status201Created, type: typeof(UserDTO))]
-
-        public async Task<IActionResult> AddUser(UserDTO obj)
+        [SwaggerResponse(statusCode: StatusCodes.Status201Created, type: typeof(UserCreationDTO))]
+        //[Authorize]
+        public async Task<IActionResult> AddUser(UserCreationDTO obj)
         {
-            Log.Information($"AddUser | User: {JsonConvert.SerializeObject(obj)}");
+            Log.Information($"AddUser (UserController) | User: {JsonConvert.SerializeObject(obj)}");
             if (ModelState.IsValid)
             {
                 try
@@ -57,24 +57,21 @@ namespace AppUser.Controllers
         /// <summary>
         /// Update user
         /// </summary>
+        /// <param name="id"></param>
         /// <param name="obj"></param>
         /// <returns></returns>
-        [HttpPut("update")]
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserDTO))]
-
-        public async Task<IActionResult> UpdateUser(UserDTO obj)
+        [HttpPut("update/{id}")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserCreationDTO))]
+        //[Authorize]
+        public async Task<IActionResult> UpdateUser(int id, UserCreationDTO obj)
         {
-            Log.Information($"UpdateUser | User: {obj.Id}");
+            Log.Information($"UpdateUser (UserController) | User: {id}");
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var data = await _userService.Edit(obj);
-                    if (data != null)
-                    {
-                        return Ok(data);
-                    }
-                    return BadRequest();
+                    var data = await _userService.Edit(id, obj);
+                    return Ok(data);
                 }
                 catch (Exception ex)
                 {
@@ -95,14 +92,14 @@ namespace AppUser.Controllers
         [HttpGet("{id}")]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserDTO))]
         [SwaggerResponse(statusCode: StatusCodes.Status204NoContent)]
-
+        //[Authorize]
         public async Task<IActionResult> GetUserById(int id)
         {
-            Log.Information($"GetUserById | ID: {id}");
+            Log.Information($"GetUserById (UserController) | ID: {id}");
             try
             {
                 var data = await _userService.Get(id);
-                if (data != null)
+                if(data != null)
                 {
                     return Ok(data);
                 }
@@ -124,12 +121,12 @@ namespace AppUser.Controllers
         [HttpGet]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(List<UserDTO>))]
         [SwaggerResponse(statusCode: StatusCodes.Status204NoContent)]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> GetAllUsers()
         {
+            Log.Information("GetAllUsers (UserController)");
             try
             {
-                Log.Information("GetAllUsers");
                 var data = await _userService.Get();
                 if (data != null)
                 {
@@ -155,12 +152,12 @@ namespace AppUser.Controllers
         [HttpGet("pagination/{pageNo}")]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(List<UserDTO>))]
         [SwaggerResponse(statusCode: StatusCodes.Status204NoContent)]
-        [Authorize]
-        public async Task<IActionResult> GetAllUsersWithPagination(/*[FromBody]*/[FromQuery] int userPerPage, [FromRoute] int pageNo)
+        //[Authorize]
+        public async Task<IActionResult> GetAllUsersWithPagination([FromRoute] int pageNo, /*[FromBody]*/[FromQuery] int userPerPage = 2)
         {
             try
             {
-                Log.Information("GetAllUsers");
+                Log.Information("GetAllUsers (UserController)");
                 var data = await _userService.GetAllPagination(userPerPage, pageNo);
                 if (data.Count != 0)
                 {
@@ -184,18 +181,14 @@ namespace AppUser.Controllers
         /// <returns></returns>
         [HttpDelete("delete/{id}")]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK)]
-
+        //[Authorize]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            Log.Information($"DeleteUser | ID: {id}");
+            Log.Information($"DeleteUser (UserController) | ID: {id}");
             try
             {
                 var data = await _userService.Delete(id);
-                if (data)
-                {
-                    return NoContent();
-                }
-                return BadRequest("ID not found!");
+                return NoContent();
             }
             catch (Exception ex)
             {
