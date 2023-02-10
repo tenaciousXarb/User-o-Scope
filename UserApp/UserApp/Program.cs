@@ -17,9 +17,9 @@ try
     var builder = WebApplication.CreateBuilder(args);
     builder.Host.UseSerilog((HostBuilderContext context, LoggerConfiguration loggerConfiguration) =>
     {
-        loggerConfiguration.WriteTo.Console();
+        //loggerConfiguration.WriteTo.Console();
         loggerConfiguration.WriteTo.File(path: "logs/applogs.txt", rollingInterval: RollingInterval.Day, fileSizeLimitBytes: 1048576, rollOnFileSizeLimit: true);
-        loggerConfiguration.WriteTo.Seq(serverUrl: "http://localhost:5341/", restrictedToMinimumLevel: LogEventLevel.Debug);
+        //loggerConfiguration.WriteTo.Seq(serverUrl: "http://localhost:5341/");
         loggerConfiguration.Enrich.FromLogContext();
         loggerConfiguration.ReadFrom.Configuration(context.Configuration);
     });

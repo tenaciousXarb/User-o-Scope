@@ -46,7 +46,7 @@ namespace BLL.Services
                 var tk = new JwtSecurityTokenHandler().WriteToken(token);
                 return tk;
             }
-            return null;
+            throw new UnauthorizedAccessException("Invalid username or password");
         }
     }
 }

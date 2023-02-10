@@ -9,6 +9,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AppUser.Controllers
 {
+    [Authorize]
     public class UserController : BaseApiController
     {
         #region fields
@@ -155,9 +156,9 @@ namespace AppUser.Controllers
         //[Authorize]
         public async Task<IActionResult> GetAllUsersWithPagination([FromRoute] int pageNo, /*[FromBody]*/[FromQuery] int userPerPage = 2)
         {
+            Log.Information("GetAllUsers (UserController)");
             try
             {
-                Log.Information("GetAllUsers (UserController)");
                 var data = await _userService.GetAllPagination(userPerPage, pageNo);
                 if (data.Count != 0)
                 {

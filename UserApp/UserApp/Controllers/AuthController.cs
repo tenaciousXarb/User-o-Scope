@@ -2,6 +2,7 @@
 using BLL.DTO;
 using BLL.Services;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace AppCoreAPI.Controllers
@@ -31,24 +32,17 @@ namespace AppCoreAPI.Controllers
         [SwaggerResponse(statusCode: StatusCodes.Status200OK)]
         public async Task<IActionResult> Login(LoginDTO login)
         {
+            Log.Information("Login (AuthController)");
             if (ModelState.IsValid)
             {
-                var token = await _authService.AuthenticateUser(login.Email, login.Password);
-
-                if (token != null)
+                try
                 {
-                    try
-                    {
-                        return Ok(token);
-                    }
-                    catch (Exception ex)
-                    {
-                        return BadRequest(ex.Message);
-                    }
+                    var token = await _authService.AuthenticateUser(login.Email, login.Password);
+                    return Ok(token);
                 }
-                else
+                catch(Exception ex)
                 {
-                    return BadRequest("Invalid username or password");
+                    return BadRequest(ex.Message);
                 }
             }
             return BadRequest(ModelState);
