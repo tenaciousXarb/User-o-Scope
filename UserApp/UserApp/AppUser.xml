@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>AppUser</name>
+    </assembly>
+    <members>
+        <member name="M:AppCoreAPI.Controllers.AuthController.Login(BLL.DTO.LoginDTO)">
+            <summary>
+            Authenticate user
+            </summary>
+            <param name="login"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AppUser.Controllers.UserController.AddUser(BLL.DTO.UserCreationDTO)">
+            <summary>
+            Add User
+            </summary>
+            <param name="userCreationDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AppUser.Controllers.UserController.UpdateUser(System.Int32,BLL.DTO.UserCreationDTO)">
+            <summary>
+            Update user
+            </summary>
+            <param name="id"></param>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AppUser.Controllers.UserController.GetUserById(System.Int32)">
+            <summary>
+            Get user by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AppUser.Controllers.UserController.GetAllUsers">
+            <summary>
+            Get all users
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:AppUser.Controllers.UserController.GetAllUsersWithPagination(System.Int32,System.Int32)">
+            <summary>
+            Get all users with pagination
+            </summary>
+            <param name="userPerPage"></param>
+            <param name="pageNo"></param>
+            <returns></returns>
+        </member>
+        <member name="M:AppUser.Controllers.UserController.DeleteUser(System.Int32)">
+            <summary>
+            Delete user by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
