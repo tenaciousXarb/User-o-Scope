@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace AppUser.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class UserController : BaseApiController
     {
         #region fields
@@ -21,7 +22,7 @@ namespace AppUser.Controllers
         public UserController(IAuthService authService, IUserService userService)
         {
             _userService = userService;
-        } 
+        }
         #endregion
 
 
@@ -29,27 +30,17 @@ namespace AppUser.Controllers
         /// <summary>
         /// Add User
         /// </summary>
-        /// <param name="obj"></param>
+        /// <param name="userCreationDTO"></param>
         /// <returns></returns>
-        [HttpPost("create")]
+        [HttpPost]
         [SwaggerResponse(statusCode: StatusCodes.Status201Created, type: typeof(UserCreationDTO))]
         //[Authorize]
-        public async Task<IActionResult> AddUser(UserCreationDTO obj)
+        public async Task<IActionResult> AddUser([FromBody, Required] UserCreationDTO userCreationDTO)
         {
-            Log.Information($"AddUser (UserController) | User: {JsonConvert.SerializeObject(obj)}");
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var data = await _userService.AddUser(obj);
-                    return StatusCode(StatusCodes.Status201Created, data);
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(ex.Message);
-                }
-            }
-            return BadRequest(ModelState);
+            Log.Information($"AddUser (UserController) | User: {JsonConvert.SerializeObject(userCreationDTO)}");
+            var response = await _userService.AddUser(userCreationDTO);
+
+            return StatusCode(StatusCodes.Status201Created, response);
         }
         #endregion
 
@@ -59,27 +50,17 @@ namespace AppUser.Controllers
         /// Update user
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="obj"></param>
+        /// <param name="userCreationDTO"></param>
         /// <returns></returns>
         [HttpPut("update/{id}")]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserCreationDTO))]
         //[Authorize]
-        public async Task<IActionResult> UpdateUser(int id, UserCreationDTO obj)
+        public async Task<IActionResult> UpdateUser(int id, UserCreationDTO userCreationDTO)
         {
             Log.Information($"UpdateUser (UserController) | User: {id}");
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var data = await _userService.Edit(id, obj);
-                    return Ok(data);
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(ex.Message);
-                }
-            }
-            return BadRequest(ModelState);
+            var response = await _userService.Edit(id, userCreationDTO);
+            
+            return Ok(response);
         }
         #endregion
 
@@ -97,19 +78,9 @@ namespace AppUser.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             Log.Information($"GetUserById (UserController) | ID: {id}");
-            try
-            {
-                var data = await _userService.Get(id);
-                if(data != null)
-                {
-                    return Ok(data);
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var response = await _userService.Get(id);
+            
+            return Ok(response);
         }
         #endregion
 
@@ -126,19 +97,9 @@ namespace AppUser.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             Log.Information("GetAllUsers (UserController)");
-            try
-            {
-                var data = await _userService.Get();
-                if (data != null)
-                {
-                    return Ok(data);
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var response = await _userService.Get();
+
+            return Ok(response);
         }
         #endregion
 
@@ -157,19 +118,22 @@ namespace AppUser.Controllers
         public async Task<IActionResult> GetAllUsersWithPagination([FromRoute] int pageNo, /*[FromBody]*/[FromQuery] int userPerPage = 2)
         {
             Log.Information("GetAllUsers (UserController)");
-            try
+            var response = await _userService.GetAllPagination(userPerPage, pageNo);
+
+            return Ok(response);
+            /*try
             {
-                var data = await _userService.GetAllPagination(userPerPage, pageNo);
-                if (data.Count != 0)
+                var response = await _userService.GetAllPagination(userPerPage, pageNo);
+                if (response.Count != 0)
                 {
-                    return Ok(data);
+                    return Ok(response);
                 }
                 return NoContent();
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
-            }
+            }*/
         }
         #endregion
 
@@ -186,15 +150,9 @@ namespace AppUser.Controllers
         public async Task<IActionResult> DeleteUser(int id)
         {
             Log.Information($"DeleteUser (UserController) | ID: {id}");
-            try
-            {
-                var data = await _userService.Delete(id);
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var response = await _userService.Delete(id);
+
+            return Ok();
         }
         #endregion
     }
