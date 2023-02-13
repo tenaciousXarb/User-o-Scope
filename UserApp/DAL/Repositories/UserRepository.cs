@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Repo
 {
-    public class UserRepository : Repository, IUserRepo
+    public class UserRepository : Repository, IUserRepository
     {
         private readonly UserProjectDbContext _userProjectDbContext;
         public UserRepository(UserProjectDbContext userProjectDbContext)

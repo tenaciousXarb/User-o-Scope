@@ -1,4 +1,5 @@
 ﻿using DAL;
+using DAL.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -14,15 +15,17 @@ namespace BLL.Services
     public class AuthService: IAuthService
     {
         private readonly IConfiguration _configuration;
+        private readonly IUserRepository _userRepo;
         
-        public AuthService()
+        public AuthService(IUserRepository userRepo)
         {
+            _userRepo = userRepo ?? throw new ArgumentNullException(nameof(userRepo));
             _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("Jwt");
         }
 
         public async Task<string?> AuthenticateUser(string uname, string pass)
         {
-            var user = await DataAccessFactory.UserAuthDataAccess().Authenticate(uname, pass);
+            var user = await _userRepo.Authenticate(uname, pass);
             if (user != null)
             {
                 var claims = new List<Claim>

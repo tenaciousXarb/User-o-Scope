@@ -2,6 +2,7 @@
 using BLL.DTO;
 using DAL;
 using DAL.EF;
+using DAL.Interfaces;
 using Newtonsoft.Json.Linq;
 
 namespace BLL.Services
@@ -9,17 +10,19 @@ namespace BLL.Services
     public class UserService : IUserService
     {
         private readonly IMapper _mapper;
+        private readonly IUserRepository _userRepo;
 
-        public UserService(IMapper mapper)
+        public UserService(IMapper mapper, IUserRepository userRepo)
         {
             _mapper = mapper;
+            _userRepo = userRepo;
         }
 
 
         public async Task<UserDTO?> AddUser(UserCreationDTO obj)
         {
             var data = _mapper.Map<User>(obj);
-            var rt = await DataAccessFactory.UserDataAccess().Add(data);
+            var rt = await _userRepo.Add(data);
             if(rt != null)
             {
                 return _mapper.Map<UserDTO>(rt);
@@ -30,7 +33,7 @@ namespace BLL.Services
 
         public async Task<List<UserDTO>?> Get()
         {
-            var data = await DataAccessFactory.UserDataAccess().Get();
+            var data = await _userRepo.Get();
             return _mapper.Map<List<UserDTO>>(data);
         }
 
@@ -38,7 +41,7 @@ namespace BLL.Services
         public async Task<List<UserDTO>?> GetAllPagination(int userPerPage, int pageNo = 1)
         {
             #region pagination in service
-            /*var data = await DataAccessFactory.UserDataAccess().Get();
+            /*var data = await _userRepo.Get();
 
                 int userPerPage = 2;
                 int pageNo = 2;
@@ -49,14 +52,14 @@ namespace BLL.Services
                 return _mapper.Map<List<UserDTO>>(subData);*/ 
             #endregion
 
-            var data = await DataAccessFactory.UserDataAccess().GetByPagination(userPerPage, pageNo);
+            var data = await _userRepo.GetByPagination(userPerPage, pageNo);
             return _mapper.Map<List<UserDTO>>(data);
         }
 
 
         public async Task<UserDTO?> Get(int id)
         {
-            var data = await DataAccessFactory.UserDataAccess().Get(id);
+            var data = await _userRepo.Get(id);
             return _mapper.Map<UserDTO>(data);
         }
 
@@ -64,7 +67,7 @@ namespace BLL.Services
         public async Task<UserDTO?> Edit(int id, UserCreationDTO obj)
         {
             var data = _mapper.Map<User>(obj);
-            var rt = await DataAccessFactory.UserDataAccess().Update(id, data);
+            var rt = await _userRepo.Update(id, data);
             if (rt != null)
             {
                 return _mapper.Map<UserDTO>(rt);
@@ -75,7 +78,7 @@ namespace BLL.Services
 
         public async Task<bool> Delete(int id)
         {
-            return await DataAccessFactory.UserDataAccess().Delete(id);
+            return await _userRepo.Delete(id);
         }
     }
 }
