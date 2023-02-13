@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface IAuth<CLASS>
+    public interface IAuthRepository<CLASS>
     {
         Task<CLASS?> Authenticate(string uname, string pass);
     }

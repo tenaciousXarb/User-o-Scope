@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace DAL.Repo
 {
-    internal class Repo
+    public class Repository
     {
         protected readonly UserProjectDbContext db;
-        public Repo()
+        public Repository()
         {
             db = new UserProjectDbContext();
         }

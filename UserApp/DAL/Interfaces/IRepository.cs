@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DAL.Interfaces
 {
-    public interface IRepo<CLASS, ID, RET>
+    public interface IRepository<CLASS, ID, RET>
     {
         Task<RET?> Add(CLASS obj);
         Task<RET?> Update(ID id, CLASS obj);
