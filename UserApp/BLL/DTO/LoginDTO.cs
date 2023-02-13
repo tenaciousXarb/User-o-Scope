@@ -1,5 +1,4 @@
-﻿using BLL.CustomValidator;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BLL.DTO
 {

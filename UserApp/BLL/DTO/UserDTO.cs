@@ -1,5 +1,4 @@
-﻿using BLL.CustomValidator;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace BLL.DTO
 {
@@ -10,7 +9,6 @@ namespace BLL.DTO
         public string Name { get; set; } = null!;
         [Required]
         public string Password { get; set; } = null!;
-        [UniqueEmail(ErrorMessage = "Email already exists!")]
         [Required]
         public string Email { get; set; } = null!;
         [Required]
