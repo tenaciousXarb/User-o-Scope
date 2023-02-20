@@ -1,80 +1,50 @@
-﻿using DAL.EF;
-using DAL.Interfaces;
+﻿using AppUser.DataAccess.AppData;
+using AppUser.DataAccess.IRepositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DAL.Repo
+namespace AppUser.DataAccess.Repositories
 {
-    public class UserRepository : Repository, IUserRepository
+    public class UserRepository : EntityBaseRepository<User>, IUserRepository
     {
-        private readonly UserProjectDbContext _userProjectDbContext;
-        public UserRepository(UserProjectDbContext userProjectDbContext)
-        {
-            _userProjectDbContext = userProjectDbContext;
-        }
+        #region fields
+        private readonly UserProjectDbContext _context;
+        #endregion
 
-        public async Task<User?> Add(User user)
-        {
-            await _userProjectDbContext.Users.AddAsync(user);
-            if (await _userProjectDbContext.SaveChangesAsync() > 0)
-            {
-                return user;
-            }
-            return null;
-        }
 
-        public async Task<bool> Delete(int id)
+        #region ctor
+        public UserRepository(UserProjectDbContext context) : base(context)
         {
-            var obj = await Get(id);
-            if (obj != null)
-            {
-                _userProjectDbContext.Users.Remove(obj);
-                return await _userProjectDbContext.SaveChangesAsync()>0;
-            }
-            throw new KeyNotFoundException("User not found");
+            _context = context;
         }
+        #endregion
 
-        public async Task<List<User>?> Get()
-        {
-            return await _userProjectDbContext.Users.ToListAsync();
-        }
 
-        public async Task<User?> Get(int id)
+        #region get by pagination async (DB)
+        public async Task<List<User>> GetByPaginationAsync(int userPerPage, int pageNumber)
         {
-            return await _userProjectDbContext.Users.FindAsync(id);
-        }
-
-        public async Task<List<User>?> GetByPagination(int userPerPage, int pageNumber)
-        {
-            return await _userProjectDbContext.Users
+            return await _context.Users
+                .OrderBy(user => user.Id)
                 .Skip(userPerPage * (pageNumber - 1))
                 .Take(userPerPage)
                 .ToListAsync();
         }
+        #endregion
 
-        public async Task<User?> Update(int id, User obj)
-        {
-            var _userProjectDbContextpost = _userProjectDbContext.Users.Find(id);
-            if(_userProjectDbContextpost != null)
-            {
-                //_userProjectDbContext.Entry(_userProjectDbContextpost).CurrentValues.SetValues(obj);
-                _userProjectDbContextpost.Name = obj.Name;
-                _userProjectDbContextpost.Password = obj.Password;
-                _userProjectDbContextpost.Email = obj.Email;
-                _userProjectDbContextpost.Address = obj.Address;
-                await _userProjectDbContext.SaveChangesAsync();
-                return _userProjectDbContextpost;
-            }
-            throw new KeyNotFoundException("User not found");
-        }
 
-        public async Task<User?> Authenticate(string email, string pass)
+        #region authenticate async (DB)
+        public async Task<User> AuthenticateAsync(string email, string password)
         {
-            return await _userProjectDbContext.Users.FirstOrDefaultAsync(x => x.Email == email && x.Password == pass);
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email == email && x.Password == password);
         }
+        #endregion
+
+
+        #region validate email (DB)
+        public bool UniqueEmail(string email, int id = 0)
+        {
+            var users = Task.Run(() => GetAsync()).Result;
+            return !(users.Any(x => x.Email == email && x.Id != id));
+        }
+        #endregion
     }
 }
