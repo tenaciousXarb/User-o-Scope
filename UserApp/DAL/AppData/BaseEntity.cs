@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace BLL.DTO
+namespace AppUser.DataAccess.AppData
 {
-    public class EntityBase
+    public class BaseEntity
     {
         [Key]
         public int Id { get; set; }
