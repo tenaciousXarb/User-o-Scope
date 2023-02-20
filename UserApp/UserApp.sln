@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32929.385
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppUser", "UserApp\AppUser.csproj", "{05003C31-E75A-4050-8063-1E9162ECA631}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppUser.API", "UserApp\AppUser.API.csproj", "{05003C31-E75A-4050-8063-1E9162ECA631}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "BLL\BLL.csproj", "{51EDFEDE-5A70-4A73-8F80-863A0F20ED33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppUser.BusinessServices", "BLL\AppUser.BusinessServices.csproj", "{51EDFEDE-5A70-4A73-8F80-863A0F20ED33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{02D4C86C-33E5-47D0-9C7A-34B334E6CC2C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AppUser.DataAccess", "DAL\AppUser.DataAccess.csproj", "{02D4C86C-33E5-47D0-9C7A-34B334E6CC2C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

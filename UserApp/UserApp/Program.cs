@@ -1,53 +1,78 @@
-//using DAL.EF;
-using BLL.Services;
-using Microsoft.AspNetCore.Authentication;
+using AppUser.API;
+using AppUser.API.MiddlewareExtensions;
+using AppUser.DataAccess.AppData;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using Serilog.Events;
+using Serilog.Exceptions;
+using Serilog.Sinks.SystemConsole.Themes;
 using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
 using System.Text;
 
+var builder = WebApplication.CreateBuilder(args);
 
-try
+builder.Host.UseSerilog((HostBuilderContext context, LoggerConfiguration loggerConfiguration) =>
 {
-    var builder = WebApplication.CreateBuilder(args);
-    builder.Host.UseSerilog((HostBuilderContext context, LoggerConfiguration loggerConfiguration) =>
-    {
-        //loggerConfiguration.WriteTo.Console();
-        loggerConfiguration.WriteTo.File(path: "logs/applogs.txt", rollingInterval: RollingInterval.Day, fileSizeLimitBytes: 1048576, rollOnFileSizeLimit: true);
-        //loggerConfiguration.WriteTo.Seq(serverUrl: "http://localhost:5341/");
-        loggerConfiguration.Enrich.FromLogContext();
-        loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-    });
+    var outputFormat = "[{Timestamp:HH:mm:ss} {Level:u}] \t {SourceContext}\n{Message:lj}\n{Exception}\n";
 
-    builder.Services.AddCors(options =>
-    {
-        options.AddDefaultPolicy(
-            policy =>
-            {
-                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-            });
-    });
-
-    // Add services to the container.
-
-    builder.Services.AddControllers();
-    builder.Services.AddEndpointsApiExplorer();
-
-    builder.Services.AddSwaggerGen(x =>
-    {
-        x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    #region theme
+    var theme = new SystemConsoleTheme(
+        new Dictionary<ConsoleThemeStyle, SystemConsoleThemeStyle>
         {
-            Type = SecuritySchemeType.Http,
-            Scheme = "Bearer",
-            Description = "JWT Authorization"
+            [ConsoleThemeStyle.Text] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.White },
+            [ConsoleThemeStyle.SecondaryText] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.DarkYellow },
+            [ConsoleThemeStyle.TertiaryText] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.DarkGray },
+            [ConsoleThemeStyle.Invalid] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Yellow },
+            [ConsoleThemeStyle.Null] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Blue },
+            [ConsoleThemeStyle.Name] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Gray },
+            [ConsoleThemeStyle.String] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.DarkCyan },
+            [ConsoleThemeStyle.Number] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Magenta },
+            [ConsoleThemeStyle.Boolean] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Blue },
+            [ConsoleThemeStyle.Scalar] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Green },
+            [ConsoleThemeStyle.LevelVerbose] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Gray },
+            [ConsoleThemeStyle.LevelDebug] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Gray },
+            [ConsoleThemeStyle.LevelInformation] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Green },
+            [ConsoleThemeStyle.LevelWarning] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Yellow },
+            [ConsoleThemeStyle.LevelError] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Black, Background = ConsoleColor.DarkRed },
+            [ConsoleThemeStyle.LevelFatal] = new SystemConsoleThemeStyle { Foreground = ConsoleColor.Black, Background = ConsoleColor.DarkRed },
         });
+    #endregion
 
-        x.AddSecurityRequirement(new OpenApiSecurityRequirement
+    loggerConfiguration.WriteTo.Console(outputTemplate: outputFormat, theme: theme);
+    loggerConfiguration.WriteTo.File(outputTemplate: outputFormat, path: "logs/applogs.txt", rollingInterval: RollingInterval.Day, fileSizeLimitBytes: 1048576, rollOnFileSizeLimit: true);
+    loggerConfiguration.WriteTo.Seq(serverUrl: "http://localhost:5341/");
+    loggerConfiguration.Enrich.FromLogContext();
+    loggerConfiguration.Enrich.WithExceptionDetails();
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
+
+#region services
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+    policy =>
+    {
+        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(x =>
+{
+    x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        Description = "JWT Authorization"
+    });
+
+    x.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -62,74 +87,64 @@ try
         }
     });
 
-        var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-    });
+    x.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "AppUser.xml"));
+});
 
-    builder.Services.AddScoped<IAuthService, AuthService>();
-    builder.Services.AddScoped<IUserService, UserService>();
-    builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-    builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AppUserServices();
 
-    JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-    builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-        };
-    });
-    /*builder.Services.AddDbContext<Bs23ProjectDbContext>(options =>
-    {
-        options.UseSqlServer(
-            builder.Configuration.GetConnectionString("DefaultConnection"));
-    });
-    builder.Services.AddHttpContextAccessor();*/
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+builder.Services.AddAutoMapper(typeof(Program));
 
-    var app = builder.Build();
-
-
-
-    Log.Information("Initializing...");
-
-
-
-    // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
-    app.UseHttpsRedirection();
-    app.UseRouting();
-    app.UseCors();
-    app.UseAuthentication();
-    app.UseAuthorization();
-
-    app.MapControllers();
-
-    app.Run();
-}
-catch(Exception ex)
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+builder.Services.AddAuthentication(options =>
 {
-    Log.Information("Exception is the name!");
-    Log.Warning(ex.Message);
-}
-finally
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
 {
-    Log.Information("Shutting down...");
-    Log.CloseAndFlush();
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+});
+builder.Services.AddDbContext<UserProjectDbContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+#endregion
+
+var app = builder.Build();
+Log.Information("Initialization...");
+
+#region request pipeline
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors();
+
+app.UseAuthentication();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+#endregion
+
+app.Run();
