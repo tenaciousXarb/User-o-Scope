@@ -1,4 +1,5 @@
-﻿using AppUser.BusinessServices.DTO;
+﻿using AppUser.API.Filters;
+using AppUser.BusinessServices.DTO;
 using AppUser.BusinessServices.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,8 @@ namespace AppUser.API.Controllers
     /// <summary>
     /// UserController
     /// </summary>
-    [Authorize]
+    //[Authorize]
+    [TypeFilter(typeof(AuthorizationFilter))]
     public class UserController : BaseApiController
     {
         #region fields

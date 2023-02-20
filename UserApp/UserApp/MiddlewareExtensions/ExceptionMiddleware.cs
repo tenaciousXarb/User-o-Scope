@@ -26,26 +26,13 @@ namespace AppUser.API.MiddlewareExtensions
         /// <exception cref="UnauthorizedAccessException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
         /// <exception cref="BadHttpRequestException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="Exception"></exception>
         public async Task InvokeAsync(HttpContext httpContext)
         {
             try
             {
-                if (httpContext.Request.Headers["Authorization"].ToString() != null && httpContext.Request.Headers["Authorization"].ToString().StartsWith("Bearer"))
-                {
-                    await _next(httpContext);
-                }
-                else
-                {
-                    if (httpContext.Request.Path == "/api/authentications")
-                    {
-                        await _next(httpContext);
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessException("You're not authorized to access this page");
-                    }
-                }
+                await _next(httpContext);
             }
             catch (Exception ex)
             {

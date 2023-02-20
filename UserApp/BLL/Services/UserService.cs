@@ -35,7 +35,7 @@ namespace AppUser.BusinessServices.Services
         {
             if (userCreationDTO != null)
             {
-                if(userCreationDTO.Name == null || userCreationDTO.Name == string.Empty)
+                if (userCreationDTO.Name == null || userCreationDTO.Name == string.Empty)
                 {
                     throw new ArgumentException("Email can't be null or empty");
                 }
@@ -53,7 +53,7 @@ namespace AppUser.BusinessServices.Services
                 }
                 else
                 {
-                    if (_userRepo.UniqueEmail(email: userCreationDTO.Email, id: 0))
+                    if (_userRepo.ValidateEmail(email: userCreationDTO.Email, id: 0))
                     {
                         var userToCreate = _mapper.Map<User>(userCreationDTO);
                         var createdUser = await _userRepo.AddAsync(userToCreate);
@@ -93,11 +93,11 @@ namespace AppUser.BusinessServices.Services
         #region get all with pagination
         public async Task<List<UserDTO>?> GetUsersPagination(int userPerPage, int pageNo)
         {
-            if(userPerPage<0)
+            if (userPerPage < 0)
             {
                 throw new ArgumentException("Users per page can't be less than zero!");
             }
-            else if(pageNo<0)
+            else if (pageNo < 0)
             {
                 throw new ArgumentException("Page number can't be less than zero!");
             }
@@ -157,7 +157,7 @@ namespace AppUser.BusinessServices.Services
                     var user = await _userRepo.GetByIdAsync(userDTO.Id);
                     if (user != null)
                     {
-                        if (_userRepo.UniqueEmail(id: userDTO.Id, email: userDTO.Email))
+                        if (_userRepo.ValidateEmail(id: userDTO.Id, email: userDTO.Email))
                         {
                             var userToUpdate = _mapper.Map<User>(userDTO);
                             var updatedUser = await _userRepo.UpdateAsync(userToUpdate);
@@ -179,7 +179,7 @@ namespace AppUser.BusinessServices.Services
                     {
                         throw new NullReferenceException("User not found");
                     }
-                }                
+                }
             }
             else
             {

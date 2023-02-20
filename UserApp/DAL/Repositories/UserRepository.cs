@@ -32,7 +32,7 @@ namespace AppUser.DataAccess.Repositories
 
 
         #region authenticate async (DB)
-        public async Task<User> AuthenticateAsync(string email, string password)
+        public async Task<User?> AuthenticateAsync(string email, string password)
         {
             return await _context.Users.FirstOrDefaultAsync(x => x.Email == email && x.Password == password);
         }
@@ -40,7 +40,7 @@ namespace AppUser.DataAccess.Repositories
 
 
         #region validate email (DB)
-        public bool UniqueEmail(string email, int id = 0)
+        public bool ValidateEmail(string email, int id = 0)
         {
             var users = Task.Run(() => GetAsync()).Result;
             return !(users.Any(x => x.Email == email && x.Id != id));

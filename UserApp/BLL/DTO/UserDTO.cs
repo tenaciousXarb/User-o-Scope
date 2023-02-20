@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace AppUser.BusinessServices.DTO
+﻿namespace AppUser.BusinessServices.DTO
 {
     public class UserDTO
     {

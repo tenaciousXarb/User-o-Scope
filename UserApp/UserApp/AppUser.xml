@@ -90,6 +90,18 @@
             </summary>
             <param name="services"></param>
         </member>
+        <member name="T:AppUser.API.Filters.AuthorizationFilter">
+            <summary>
+            AuthorizationFilter
+            </summary>
+        </member>
+        <member name="M:AppUser.API.Filters.AuthorizationFilter.OnAuthorization(Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)">
+            <summary>
+            OnAuthorization (AuthorizationFilter)
+            </summary>
+            <param name="context"></param>
+            <exception cref="T:System.UnauthorizedAccessException"></exception>
+        </member>
         <member name="T:AppUser.API.MappingProfiles.UserMappingProfiles">
             <summary>
             UserMappingProfiles
@@ -120,6 +132,7 @@
             <exception cref="T:System.UnauthorizedAccessException"></exception>
             <exception cref="T:System.InvalidOperationException"></exception>
             <exception cref="T:Microsoft.AspNetCore.Http.BadHttpRequestException"></exception>
+            <exception cref="T:System.ArgumentException"></exception>
             <exception cref="T:System.Exception"></exception>
         </member>
     </members>
