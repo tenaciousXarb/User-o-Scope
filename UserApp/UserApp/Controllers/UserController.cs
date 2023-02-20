@@ -1,16 +1,18 @@
-﻿using BLL.DTO;
-using BLL.Services;
+﻿using AppUser.BusinessServices.DTO;
+using AppUser.BusinessServices.IServices;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Serilog;
 using Swashbuckle.AspNetCore.Annotations;
 using System.ComponentModel.DataAnnotations;
 
-namespace AppUser.Controllers
+namespace AppUser.API.Controllers
 {
-    //[Authorize]
+    /// <summary>
+    /// UserController
+    /// </summary>
+    [Authorize]
     public class UserController : BaseApiController
     {
         #region fields
@@ -19,7 +21,11 @@ namespace AppUser.Controllers
 
 
         #region ctor
-        public UserController(IAuthService authService, IUserService userService)
+        /// <summary>
+        /// UserController Constructor
+        /// </summary>
+        /// <param name="userService"></param>
+        public UserController(IUserService userService)
         {
             _userService = userService;
         }
@@ -49,17 +55,16 @@ namespace AppUser.Controllers
         /// <summary>
         /// Update user
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="userCreationDTO"></param>
+        /// <param name="userDTO"></param>
         /// <returns></returns>
-        [HttpPut("update/{id}")]
-        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserCreationDTO))]
+        [HttpPut]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(UserDTO))]
         //[Authorize]
-        public async Task<IActionResult> UpdateUser(int id, UserCreationDTO userCreationDTO)
+        public async Task<IActionResult> UpdateUser([FromBody, Required] UserDTO userDTO)
         {
-            Log.Information($"UpdateUser (UserController) | User: {id}");
-            var response = await _userService.Edit(id, userCreationDTO);
-            
+            Log.Information($"UpdateUser (UserController) | User: {userDTO.Id}");
+            var response = await _userService.EditUser(userDTO);
+
             return Ok(response);
         }
         #endregion
@@ -78,8 +83,8 @@ namespace AppUser.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             Log.Information($"GetUserById (UserController) | ID: {id}");
-            var response = await _userService.Get(id);
-            
+            var response = await _userService.GetUserById(id);
+
             return Ok(response);
         }
         #endregion
@@ -97,7 +102,7 @@ namespace AppUser.Controllers
         public async Task<IActionResult> GetAllUsers()
         {
             Log.Information("GetAllUsers (UserController)");
-            var response = await _userService.Get();
+            var response = await _userService.GetUsers();
 
             return Ok(response);
         }
@@ -108,32 +113,18 @@ namespace AppUser.Controllers
         /// <summary>
         /// Get all users with pagination
         /// </summary>
-        /// <param name="userPerPage"></param>
-        /// <param name="pageNo"></param>
+        /// <param name="pageDetails"></param>
         /// <returns></returns>
-        [HttpGet("pagination/{pageNo}")]
+        [HttpGet("pagination")]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(List<UserDTO>))]
         [SwaggerResponse(statusCode: StatusCodes.Status204NoContent)]
         //[Authorize]
-        public async Task<IActionResult> GetAllUsersWithPagination([FromRoute] int pageNo, /*[FromBody]*/[FromQuery] int userPerPage = 2)
+        public async Task<IActionResult> GetAllUsersWithPagination([FromQuery] PageDetails pageDetails)
         {
-            Log.Information("GetAllUsers (UserController)");
-            var response = await _userService.GetAllPagination(userPerPage, pageNo);
+            Log.Information("GetAllUsersWithPagination (UserController)");
+            var response = await _userService.GetUsersPagination(userPerPage: pageDetails.UserPerPage, pageNo: pageDetails.PageNo);
 
             return Ok(response);
-            /*try
-            {
-                var response = await _userService.GetAllPagination(userPerPage, pageNo);
-                if (response.Count != 0)
-                {
-                    return Ok(response);
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }*/
         }
         #endregion
 
@@ -144,13 +135,13 @@ namespace AppUser.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         [SwaggerResponse(statusCode: StatusCodes.Status200OK)]
         //[Authorize]
         public async Task<IActionResult> DeleteUser(int id)
         {
             Log.Information($"DeleteUser (UserController) | ID: {id}");
-            var response = await _userService.Delete(id);
+            var response = await _userService.DeleteUser(id);
 
             return Ok();
         }

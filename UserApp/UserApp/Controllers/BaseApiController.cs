@@ -1,9 +1,12 @@
-﻿using BLL.DTO;
+﻿using AppUser.BusinessServices.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace AppUser.Controllers
+namespace AppUser.API.Controllers
 {
+    /// <summary>
+    /// BaseApiController
+    /// </summary>
     [Route("api/[controller]s")]
     [ApiController]
     [SwaggerResponse(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ErrorDetails))]
@@ -11,5 +14,6 @@ namespace AppUser.Controllers
     [SwaggerResponse(statusCode: StatusCodes.Status400BadRequest, type: typeof(ErrorDetails))]
     public class BaseApiController : ControllerBase
     {
+
     }
 }
