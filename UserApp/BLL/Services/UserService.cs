@@ -53,7 +53,7 @@ namespace AppUser.BusinessServices.Services
                 }
                 else
                 {
-                    if (_userRepo.ValidateEmail(email: userCreationDTO.Email, id: 0))
+                    if (UniqueEmail(email: userCreationDTO.Email, id: 0).Result)
                     {
                         var userToCreate = _mapper.Map<User>(userCreationDTO);
                         var createdUser = await _userRepo.AddAsync(userToCreate);
@@ -103,7 +103,7 @@ namespace AppUser.BusinessServices.Services
             }
             else
             {
-                var users = await _userRepo.GetByPaginationAsync(userPerPage, pageNo);
+                var users = await GetPaginatedUsers(userPerPage, pageNo);
                 if (users.Count == 0)
                 {
                     return null;
@@ -157,7 +157,7 @@ namespace AppUser.BusinessServices.Services
                     var user = await _userRepo.GetByIdAsync(userDTO.Id);
                     if (user != null)
                     {
-                        if (_userRepo.ValidateEmail(id: userDTO.Id, email: userDTO.Email))
+                        if (UniqueEmail(id: userDTO.Id, email: userDTO.Email).Result)
                         {
                             var userToUpdate = _mapper.Map<User>(userDTO);
                             var updatedUser = await _userRepo.UpdateAsync(userToUpdate);
@@ -226,7 +226,7 @@ namespace AppUser.BusinessServices.Services
             }
             else
             {
-                var user = await _userRepo.AuthenticateAsync(email: loginDTO.Email, password: loginDTO.Password);
+                var user = await ValidateCredentials(email: loginDTO.Email, password: loginDTO.Password);
                 if (user != null)
                 {
                     var claims = new List<Claim>
@@ -238,23 +238,56 @@ namespace AppUser.BusinessServices.Services
 
                     var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]));
 
-                    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
                     var token = new JwtSecurityToken(
                         _configuration["Jwt:Issuer"],
                         _configuration["Jwt:Audience"],
                         claims,
                         expires: DateTime.Now.AddMinutes(90),
-                        signingCredentials: creds);
+                        signingCredentials: signingCredentials);
 
-                    var tk = new JwtSecurityTokenHandler().WriteToken(token);
-                    return tk;
+                    var writtenToken = new JwtSecurityTokenHandler().WriteToken(token);
+                    return writtenToken;
                 }
                 else
                 {
                     throw new ArgumentException("Invalid username or password");
                 }
             }
+        }
+        #endregion
+
+
+        #region validate email
+        private async Task<bool> UniqueEmail(string email, int id = 0)
+        {
+            //var users = (await _userRepo.GetAsync()).Where(x => x.Email.ToLower().Trim() == email.ToLower().Trim()).ToList();
+            return !(((await _userRepo.GetAsync())
+                .Where(x => x.Email.ToLower().Trim() == email.ToLower().Trim() && x.Id != id)
+                .ToList())
+                .Any());
+            //return users.Any() ? true: false;
+        }
+        #endregion
+
+
+        #region get paginated users
+        private async Task<List<User>> GetPaginatedUsers(int userPerPage, int pageNumber)
+        {
+            return (await _userRepo.GetAsync())
+                .OrderBy(user => user.Id)
+                .Skip(userPerPage * (pageNumber - 1))
+                .Take(userPerPage)
+                .ToList();
+        }
+        #endregion
+
+
+        #region validate credentials
+        private async Task<User?> ValidateCredentials(string email, string password)
+        {
+            return (await _userRepo.GetAsync()).FirstOrDefault(x => x.Email == email && x.Password == password);
         }
         #endregion
     }
