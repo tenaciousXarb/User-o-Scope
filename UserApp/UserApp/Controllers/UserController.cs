@@ -33,7 +33,7 @@ namespace AppUser.API.Controllers
         /// <param name="userCreationDTO"></param>
         /// <returns></returns>
         [HttpPost]
-        [SwaggerResponse(statusCode: StatusCodes.Status201Created, type: typeof(UserCreationDTO))]
+        [SwaggerResponse(statusCode: StatusCodes.Status201Created, type: typeof(UserDTO))]
         //[Authorize]
         public async Task<IActionResult> AddUser([FromBody, Required] UserCreationDTO userCreationDTO)
         {
@@ -116,7 +116,7 @@ namespace AppUser.API.Controllers
         public async Task<IActionResult> GetAllUsersWithPagination([FromQuery] PageDetails pageDetails)
         {
             Log.Information("GetAllUsersWithPagination (UserController)");
-            var response = await _userService.GetUsersPagination(userPerPage: pageDetails.UserPerPage, pageNo: pageDetails.PageNo);
+            var response = await _userService.GetUsersWithPagination(userPerPage: pageDetails.UserPerPage, pageNo: pageDetails.PageNo);
 
             return Ok(response);
         }

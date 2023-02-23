@@ -53,7 +53,7 @@ namespace AppUser.BusinessServices.Services
                 }
                 else
                 {
-                    if (UniqueEmail(email: userCreationDTO.Email, id: 0).Result)
+                    if (await _userRepo.UniqueEmail(email: userCreationDTO.Email, id: 0))
                     {
                         var userToCreate = _mapper.Map<User>(userCreationDTO);
                         var createdUser = await _userRepo.AddAsync(userToCreate);
@@ -83,7 +83,8 @@ namespace AppUser.BusinessServices.Services
         #region get all users
         public async Task<List<UserDTO>?> GetUsers()
         {
-            var users = await _userRepo.GetAsync();
+            //var users = await _userRepo.GetAsync();
+            var users = await _userRepo.GetAllSure();
 
             return _mapper.Map<List<UserDTO>>(users);
         }
@@ -91,7 +92,7 @@ namespace AppUser.BusinessServices.Services
 
 
         #region get all with pagination
-        public async Task<List<UserDTO>?> GetUsersPagination(int userPerPage, int pageNo)
+        public async Task<List<UserDTO>?> GetUsersWithPagination(int userPerPage, int pageNo)
         {
             if (userPerPage < 0)
             {
@@ -103,7 +104,7 @@ namespace AppUser.BusinessServices.Services
             }
             else
             {
-                var users = await GetPaginatedUsers(userPerPage, pageNo);
+                var users = await _userRepo.GetByPaginationAsync(userPerPage, pageNo);
                 if (users.Count == 0)
                 {
                     return null;
@@ -157,7 +158,7 @@ namespace AppUser.BusinessServices.Services
                     var user = await _userRepo.GetByIdAsync(userDTO.Id);
                     if (user != null)
                     {
-                        if (UniqueEmail(id: userDTO.Id, email: userDTO.Email).Result)
+                        if (await _userRepo.UniqueEmail(id: userDTO.Id, email: userDTO.Email))
                         {
                             var userToUpdate = _mapper.Map<User>(userDTO);
                             var updatedUser = await _userRepo.UpdateAsync(userToUpdate);
@@ -226,7 +227,7 @@ namespace AppUser.BusinessServices.Services
             }
             else
             {
-                var user = await ValidateCredentials(email: loginDTO.Email, password: loginDTO.Password);
+                var user = await _userRepo.AuthenticateAsync(email: loginDTO.Email, password: loginDTO.Password);
                 if (user != null)
                 {
                     var claims = new List<Claim>
@@ -255,39 +256,6 @@ namespace AppUser.BusinessServices.Services
                     throw new ArgumentException("Invalid username or password");
                 }
             }
-        }
-        #endregion
-
-
-        #region validate email
-        private async Task<bool> UniqueEmail(string email, int id = 0)
-        {
-            //var users = (await _userRepo.GetAsync()).Where(x => x.Email.ToLower().Trim() == email.ToLower().Trim()).ToList();
-            return !(((await _userRepo.GetAsync())
-                .Where(x => x.Email.ToLower().Trim() == email.ToLower().Trim() && x.Id != id)
-                .ToList())
-                .Any());
-            //return users.Any() ? true: false;
-        }
-        #endregion
-
-
-        #region get paginated users
-        private async Task<List<User>> GetPaginatedUsers(int userPerPage, int pageNumber)
-        {
-            return (await _userRepo.GetAsync())
-                .OrderBy(user => user.Id)
-                .Skip(userPerPage * (pageNumber - 1))
-                .Take(userPerPage)
-                .ToList();
-        }
-        #endregion
-
-
-        #region validate credentials
-        private async Task<User?> ValidateCredentials(string email, string password)
-        {
-            return (await _userRepo.GetAsync()).FirstOrDefault(x => x.Email == email && x.Password == password);
         }
         #endregion
     }
