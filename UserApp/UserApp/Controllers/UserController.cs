@@ -1,7 +1,6 @@
 ﻿using AppUser.API.Filters;
 using AppUser.BusinessServices.DTO;
 using AppUser.BusinessServices.IServices;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Serilog;
@@ -10,9 +9,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppUser.API.Controllers
 {
-    /// <summary>
-    /// UserController
-    /// </summary>
     //[Authorize]
     [TypeFilter(typeof(AuthorizationFilter))]
     public class UserController : BaseApiController
@@ -23,10 +19,6 @@ namespace AppUser.API.Controllers
 
 
         #region ctor
-        /// <summary>
-        /// UserController Constructor
-        /// </summary>
-        /// <param name="userService"></param>
         public UserController(IUserService userService)
         {
             _userService = userService;

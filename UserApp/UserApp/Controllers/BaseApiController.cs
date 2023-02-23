@@ -4,9 +4,6 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace AppUser.API.Controllers
 {
-    /// <summary>
-    /// BaseApiController
-    /// </summary>
     [Route("api/[controller]s")]
     [ApiController]
     [SwaggerResponse(statusCode: StatusCodes.Status401Unauthorized, type: typeof(ErrorDetails))]

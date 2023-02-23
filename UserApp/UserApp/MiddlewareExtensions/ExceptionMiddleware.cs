@@ -4,16 +4,9 @@ using System.Net;
 
 namespace AppUser.API.MiddlewareExtensions
 {
-    /// <summary>
-    /// ExceptionMiddleware
-    /// </summary>
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
-        /// <summary>
-        /// ExceptionMiddleware Constructor
-        /// </summary>
-        /// <param name="next"></param>
         public ExceptionMiddleware(RequestDelegate next)
         {
             _next = next;

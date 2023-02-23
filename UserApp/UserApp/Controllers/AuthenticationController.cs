@@ -7,9 +7,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace AppUser.API.Controllers
 {
-    /// <summary>
-    /// AuthenticationController
-    /// </summary>
     public class AuthenticationController : BaseApiController
     {
         #region fields
@@ -18,10 +15,6 @@ namespace AppUser.API.Controllers
 
 
         #region ctor
-        /// <summary>
-        /// AuthenticationController Constructor
-        /// </summary>
-        /// <param name="userService"></param>
         public AuthenticationController(IUserService userService)
         {
             _userService = userService;

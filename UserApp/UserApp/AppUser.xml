@@ -4,39 +4,12 @@
         <name>AppUser.API</name>
     </assembly>
     <members>
-        <member name="T:AppUser.API.Controllers.AuthenticationController">
-            <summary>
-            AuthenticationController
-            </summary>
-        </member>
-        <member name="M:AppUser.API.Controllers.AuthenticationController.#ctor(AppUser.BusinessServices.IServices.IUserService)">
-            <summary>
-            AuthenticationController Constructor
-            </summary>
-            <param name="userService"></param>
-        </member>
         <member name="M:AppUser.API.Controllers.AuthenticationController.Authenticate(AppUser.BusinessServices.DTO.LoginDTO)">
             <summary>
             Authenticate user
             </summary>
             <param name="loginDTO"></param>
             <returns></returns>
-        </member>
-        <member name="T:AppUser.API.Controllers.BaseApiController">
-            <summary>
-            BaseApiController
-            </summary>
-        </member>
-        <member name="T:AppUser.API.Controllers.UserController">
-            <summary>
-            UserController
-            </summary>
-        </member>
-        <member name="M:AppUser.API.Controllers.UserController.#ctor(AppUser.BusinessServices.IServices.IUserService)">
-            <summary>
-            UserController Constructor
-            </summary>
-            <param name="userService"></param>
         </member>
         <member name="M:AppUser.API.Controllers.UserController.AddUser(AppUser.BusinessServices.DTO.UserCreationDTO)">
             <summary>
@@ -79,49 +52,9 @@
             <param name="id"></param>
             <returns></returns>
         </member>
-        <member name="T:AppUser.API.CoreDependencies">
-            <summary>
-            CoreDependencies
-            </summary>
-        </member>
-        <member name="M:AppUser.API.CoreDependencies.AppUserServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
-            <summary>
-            AppUserServices
-            </summary>
-            <param name="services"></param>
-        </member>
-        <member name="T:AppUser.API.Filters.AuthorizationFilter">
-            <summary>
-            AuthorizationFilter
-            </summary>
-        </member>
         <member name="M:AppUser.API.Filters.AuthorizationFilter.OnAuthorization(Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)">
-            <summary>
-            OnAuthorization (AuthorizationFilter)
-            </summary>
             <param name="context"></param>
             <exception cref="T:System.UnauthorizedAccessException"></exception>
-        </member>
-        <member name="T:AppUser.API.MappingProfiles.UserMappingProfiles">
-            <summary>
-            UserMappingProfiles
-            </summary>
-        </member>
-        <member name="M:AppUser.API.MappingProfiles.UserMappingProfiles.#ctor">
-            <summary>
-            UserMappingProfiles Constructor
-            </summary>
-        </member>
-        <member name="T:AppUser.API.MiddlewareExtensions.ExceptionMiddleware">
-            <summary>
-            ExceptionMiddleware
-            </summary>
-        </member>
-        <member name="M:AppUser.API.MiddlewareExtensions.ExceptionMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate)">
-            <summary>
-            ExceptionMiddleware Constructor
-            </summary>
-            <param name="next"></param>
         </member>
         <member name="M:AppUser.API.MiddlewareExtensions.ExceptionMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
             <summary>
