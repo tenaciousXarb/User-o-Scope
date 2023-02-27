@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>UserApp.API</name>
+    </assembly>
+    <members>
+        <member name="M:UserApp.API.Controllers.AuthenticationController.Authenticate(UserApp.BusinessServices.DTO.LoginDTO)">
+            <summary>
+            Authenticate user
+            </summary>
+            <param name="loginDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.AddUser(UserApp.BusinessServices.DTO.UserCreationDTO)">
+            <summary>
+            Add User
+            </summary>
+            <param name="userCreationDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.UpdateUser(UserApp.BusinessServices.DTO.UserDTO)">
+            <summary>
+            Update user
+            </summary>
+            <param name="userDTO"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.GetUserById(System.Int32)">
+            <summary>
+            Get user by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.GetAllUsers">
+            <summary>
+            Get all users
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.GetAllUsersWithPagination(UserApp.BusinessServices.DTO.PageDetails)">
+            <summary>
+            Get all users with pagination
+            </summary>
+            <param name="pageDetails"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.DeleteUser(System.Int32)">
+            <summary>
+            Delete user by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Controllers.UserController.SearchUser(System.String)">
+            <summary>
+            Search user by name
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:UserApp.API.Filters.AuthorizationFilter.OnAuthorization(Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext)">
+            <param name="context"></param>
+            <exception cref="T:System.UnauthorizedAccessException"></exception>
+        </member>
+        <member name="M:UserApp.API.MiddlewareExtensions.ExceptionMiddleware.InvokeAsync(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            InvokeAsync
+            </summary>
+            <param name="httpContext"></param>
+            <returns></returns>
+            <exception cref="T:System.UnauthorizedAccessException"></exception>
+            <exception cref="T:System.InvalidOperationException"></exception>
+            <exception cref="T:Microsoft.AspNetCore.Http.BadHttpRequestException"></exception>
+            <exception cref="T:System.ArgumentException"></exception>
+            <exception cref="T:System.Exception"></exception>
+        </member>
+    </members>
+</doc>
