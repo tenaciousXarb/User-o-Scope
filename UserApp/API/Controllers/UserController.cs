@@ -17,6 +17,7 @@ namespace UserApp.API.Controllers
     {
         #region fields
         private readonly IUserService _userService;
+        private readonly IDbConnection _connection;
         #endregion
 
 
@@ -24,6 +25,7 @@ namespace UserApp.API.Controllers
         public UserController(IUserService userService, IDbConnection connection)
         {
             _userService = userService;
+            _connection = connection;
         }
         #endregion
 
@@ -140,6 +142,26 @@ namespace UserApp.API.Controllers
             var response = await _userService.DeleteUser(id);
 
             return Ok();
+        }
+        #endregion
+
+
+        #region search user api
+        /// <summary>
+        /// Search user by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        [HttpGet("search")]
+        [SwaggerResponse(statusCode: StatusCodes.Status200OK, type: typeof(List<UserDTO>))]
+        [SwaggerResponse(statusCode: StatusCodes.Status204NoContent)]
+        //[Authorize]
+        public async Task<IActionResult> SearchUser([FromQuery, Required] string name)
+        {
+            Log.Information($"SearchUser (UserController) | Search string: {name}");
+            var response = (await _connection.QueryAsync<UserDTO>(sql: "SearchUser", param: new { Name = name }, commandType: CommandType.StoredProcedure)).AsList();
+
+            return response.Count != 0 ? Ok(response) : NoContent();
         }
         #endregion
     }
