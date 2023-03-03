@@ -12,7 +12,7 @@ using UserApp.BusinessServices.IServices;
 namespace UserApp.API.Controllers
 {
     //[Authorize]
-    [TypeFilter(typeof(AuthorizationFilter))]
+    [AuthorizationFilter]
     public class UserController : BaseApiController
     {
         #region fields
@@ -120,7 +120,7 @@ namespace UserApp.API.Controllers
         public async Task<IActionResult> GetAllUsersWithPagination([FromQuery] PageDetails pageDetails)
         {
             Log.Information("GetAllUsersWithPagination (UserController)");
-            var response = await _userService.GetUsersWithPagination(userPerPage: pageDetails.UserPerPage, pageNo: pageDetails.PageNo);
+            var response = await _userService.GetUsersWithPagination(pageDetails);
 
             return Ok(response);
         }
@@ -159,7 +159,16 @@ namespace UserApp.API.Controllers
         public async Task<IActionResult> SearchUser([FromQuery, Required] string name)
         {
             Log.Information($"SearchUser (UserController) | Search string: {name}");
-            var response = (await _connection.QueryAsync<UserDTO>(sql: "SearchUser", param: new { Name = name }, commandType: CommandType.StoredProcedure)).AsList();
+
+            #region Inline Table-Valued Function
+            //Stored Inline Table-Valued Function
+            var response = (await _connection.QueryAsync<UserDTO>($"select * from search_user_inline(@Name)", param: new { Name = name })).AsList();
+            #endregion
+
+            #region Procedure
+            //Stored Procedure
+            /*var response = (await _connection.QueryAsync<UserDTO>(sql: "SearchUser", param: new { Name = name }, commandType: CommandType.StoredProcedure)).AsList();*/
+            #endregion
 
             return response.Count != 0 ? Ok(response) : NoContent();
         }

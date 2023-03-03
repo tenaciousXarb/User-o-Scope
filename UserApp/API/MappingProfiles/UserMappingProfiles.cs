@@ -8,8 +8,10 @@ namespace UserApp.API.MappingProfiles
     {
         public UserMappingProfiles()
         {
+            #region Profiles
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<User, UserCreationDTO>().ReverseMap();
+            #endregion
         }
     }
 }

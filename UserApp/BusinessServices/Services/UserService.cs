@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using UserApp.BusinessServices.DTO;
 using UserApp.BusinessServices.IServices;
+using UserApp.BusinessServices.Validator;
 using UserApp.DataAccess.AppData;
 using UserApp.DataAccess.IRepositories;
 
@@ -33,48 +34,24 @@ namespace UserApp.BusinessServices.Services
         #region add user
         public async Task<UserDTO?> AddUser(UserCreationDTO userCreationDTO)
         {
-            if (userCreationDTO != null)
+            ObjectValidator.CheckNullOrEmpty(userCreationDTO);
+
+            if (await _userRepo.UniqueEmail(email: userCreationDTO.Email, id: 0))
             {
-                if (userCreationDTO.Name == null || userCreationDTO.Name == string.Empty)
+                var userToCreate = _mapper.Map<User>(userCreationDTO);
+                var createdUser = await _userRepo.AddAsync(userToCreate);
+                if (createdUser != null)
                 {
-                    throw new ArgumentException("Email can't be null or empty");
-                }
-                else if (userCreationDTO.Password == null || userCreationDTO.Password == string.Empty)
-                {
-                    throw new ArgumentException("Password can't be null or empty");
-                }
-                else if (userCreationDTO.Email == null || userCreationDTO.Email == string.Empty)
-                {
-                    throw new ArgumentException("Email can't be null or empty");
-                }
-                else if (userCreationDTO.Address == null || userCreationDTO.Address == string.Empty)
-                {
-                    throw new ArgumentException("Address can't be null or empty");
+                    return _mapper.Map<UserDTO>(createdUser);
                 }
                 else
                 {
-                    if (await _userRepo.UniqueEmail(email: userCreationDTO.Email, id: 0))
-                    {
-                        var userToCreate = _mapper.Map<User>(userCreationDTO);
-                        var createdUser = await _userRepo.AddAsync(userToCreate);
-                        if (createdUser != null)
-                        {
-                            return _mapper.Map<UserDTO>(createdUser);
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException("Unable to add user");
-                        }
-                    }
-                    else
-                    {
-                        throw new ArgumentException("Email already exists");
-                    }
+                    throw new InvalidOperationException("Unable to add user");
                 }
             }
             else
             {
-                throw new NullReferenceException("Null user object");
+                throw new ArgumentException("Email already exists");
             }
         }
         #endregion
@@ -92,27 +69,18 @@ namespace UserApp.BusinessServices.Services
 
 
         #region get all with pagination
-        public async Task<List<UserDTO>?> GetUsersWithPagination(int userPerPage, int pageNo)
+        public async Task<List<UserDTO>?> GetUsersWithPagination(PageDetails pageDetails)
         {
-            if (userPerPage < 0)
+            ObjectValidator.CheckNullOrEmpty(pageDetails);
+
+            var users = await _userRepo.GetByPaginationAsync(pageNumber: pageDetails.PageNo, userPerPage: pageDetails.UserPerPage);
+            if (users.Count == 0)
             {
-                throw new ArgumentException("Users per page can't be less than zero!");
-            }
-            else if (pageNo < 0)
-            {
-                throw new ArgumentException("Page number can't be less than zero!");
+                return null;
             }
             else
             {
-                var users = await _userRepo.GetByPaginationAsync(userPerPage, pageNo);
-                if (users.Count == 0)
-                {
-                    return null;
-                }
-                else
-                {
-                    return _mapper.Map<List<UserDTO>>(users);
-                }
+                return _mapper.Map<List<UserDTO>>(users);
             }
         }
         #endregion
@@ -131,60 +99,32 @@ namespace UserApp.BusinessServices.Services
         #region update user
         public async Task<UserDTO?> EditUser(UserDTO userDTO)
         {
-            if (userDTO != null)
+            ObjectValidator.CheckNullOrEmpty(userDTO);
+
+            var user = await _userRepo.GetByIdAsync(userDTO.Id);
+            if (user != null)
             {
-                if (userDTO.Id <= 0)
+                if (await _userRepo.UniqueEmail(id: userDTO.Id, email: userDTO.Email))
                 {
-                    throw new ArgumentException("ID can't be null and has to be a non-negative integer");
-                }
-                else if (userDTO.Name == null || userDTO.Name == string.Empty)
-                {
-                    throw new ArgumentException("Name can't be null or empty");
-                }
-                else if (userDTO.Password == null || userDTO.Password == string.Empty)
-                {
-                    throw new ArgumentException("Password can't be null or empty");
-                }
-                else if (userDTO.Email == null || userDTO.Email == string.Empty)
-                {
-                    throw new ArgumentException("Email can't be null or empty");
-                }
-                else if (userDTO.Address == null || userDTO.Address == string.Empty)
-                {
-                    throw new ArgumentException("Address can't be null or empty");
-                }
-                else
-                {
-                    var user = await _userRepo.GetByIdAsync(userDTO.Id);
-                    if (user != null)
+                    var userToUpdate = _mapper.Map<User>(userDTO);
+                    var updatedUser = await _userRepo.UpdateAsync(userToUpdate);
+                    if (updatedUser != null)
                     {
-                        if (await _userRepo.UniqueEmail(id: userDTO.Id, email: userDTO.Email))
-                        {
-                            var userToUpdate = _mapper.Map<User>(userDTO);
-                            var updatedUser = await _userRepo.UpdateAsync(userToUpdate);
-                            if (updatedUser != null)
-                            {
-                                return _mapper.Map<UserDTO>(updatedUser);
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException("Values not updated");
-                            }
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Email not unique");
-                        }
+                        return _mapper.Map<UserDTO>(updatedUser);
                     }
                     else
                     {
-                        throw new NullReferenceException("User not found");
+                        throw new InvalidOperationException("Values not updated");
                     }
+                }
+                else
+                {
+                    throw new ArgumentException("Email not unique");
                 }
             }
             else
             {
-                throw new NullReferenceException("Null UserDTO object");
+                throw new NullReferenceException("User not found");
             }
         }
         #endregion
@@ -217,44 +157,35 @@ namespace UserApp.BusinessServices.Services
         #region authenticate user
         public async Task<string?> AuthenticateUser(LoginDTO loginDTO)
         {
-            if (loginDTO.Email == null || loginDTO.Email == string.Empty)
+            ObjectValidator.CheckNullOrEmpty(loginDTO);
+
+            var user = await _userRepo.AuthenticateAsync(email: loginDTO.Email, password: loginDTO.Password);
+            if (user != null)
             {
-                throw new ArgumentException("Email can't be null or empty!");
-            }
-            else if (loginDTO.Password == null || loginDTO.Password == string.Empty)
-            {
-                throw new ArgumentException("Password can't be null or empty!");
-            }
-            else
-            {
-                var user = await _userRepo.AuthenticateAsync(email: loginDTO.Email, password: loginDTO.Password);
-                if (user != null)
-                {
-                    var claims = new List<Claim>
+                var claims = new List<Claim>
                     {
                         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                         new Claim("uid", user.Id.ToString()),
                         new Claim("user", user.Email)
                     };
 
-                    var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]));
+                var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]));
 
-                    var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-                    var token = new JwtSecurityToken(
-                        _configuration["Jwt:Issuer"],
-                        _configuration["Jwt:Audience"],
-                        claims,
-                        expires: DateTime.Now.AddMinutes(90),
-                        signingCredentials: signingCredentials);
+                var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: DateTime.Now.AddMinutes(90),
+                    signingCredentials: signingCredentials);
 
-                    var writtenToken = new JwtSecurityTokenHandler().WriteToken(token);
-                    return writtenToken;
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid username or password");
-                }
+                var writtenToken = new JwtSecurityTokenHandler().WriteToken(token);
+                return writtenToken;
+            }
+            else
+            {
+                throw new ArgumentException("Invalid username or password");
             }
         }
         #endregion

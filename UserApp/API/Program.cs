@@ -90,7 +90,6 @@ builder.Services.AddSwaggerGen(x =>
 
 builder.Services.UserAppServices();
 
-builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 builder.Services.AddAutoMapper(typeof(Program));
 
 /*JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -112,6 +111,9 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
 });*/
+
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
+
 builder.Services.AddTransient<IDbConnection>((sp) => new SqlConnection(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDbContext<UserProjectDbContext>(options =>
 {

@@ -13,7 +13,6 @@ namespace UserApp.API
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
             #endregion
-
         }
     }
 }
